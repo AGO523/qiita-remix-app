@@ -1,5 +1,11 @@
 import type { AppLoadContext } from "@remix-run/cloudflare";
 import type { Customer } from "../types/customer";
+import { z } from "zod";
+
+const CustomerSchema = z.object({
+  CompanyName: z.string().min(1).max(100),
+  ContactName: z.string().min(1).max(100),
+});
 
 export async function getCustomers(
   context: AppLoadContext
@@ -18,14 +24,23 @@ export async function getCustomers(
 
 export async function createCustomer(
   context: AppLoadContext,
-  newCustomer: { CompanyName: string; ContactName: string }
+  formData: FormData
 ) {
   const env = context.cloudflare.env;
   const db = env.DB;
+  const formObject = {
+    CompanyName: formData.get("CompanyName"),
+    ContactName: formData.get("ContactName"),
+  };
+
+  const results = CustomerSchema.safeParse(formObject);
+  if (!results.success) {
+    throw new Error("Invalid form data");
+  }
 
   const response = await db
     .prepare(`INSERT INTO customers (CompanyName, ContactName) VALUES (?, ?)`)
-    .bind(newCustomer.CompanyName, newCustomer.ContactName)
+    .bind(results.data.CompanyName, results.data.ContactName)
     .run();
 
   if (!response.success) {
