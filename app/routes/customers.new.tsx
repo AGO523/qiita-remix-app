@@ -1,22 +1,11 @@
 import type { ActionFunctionArgs } from "@remix-run/cloudflare";
-import { json, redirect } from "@remix-run/cloudflare";
+import { redirect } from "@remix-run/cloudflare";
 import { Form } from "@remix-run/react";
 import { createCustomer } from "../.server/database";
 
 export async function action({ request, context }: ActionFunctionArgs) {
   const formData = await request.formData();
-  const companyName = formData.get("CompanyName");
-  const contactName = formData.get("ContactName");
-
-  // このバリデーションはあとで変更
-  if (typeof companyName !== "string" || typeof contactName !== "string") {
-    return json({ error: "Invalid form submission" }, { status: 400 });
-  }
-
-  await createCustomer(context, {
-    CompanyName: companyName,
-    ContactName: contactName,
-  });
+  await createCustomer(context, formData);
 
   return redirect("/customers");
 }
