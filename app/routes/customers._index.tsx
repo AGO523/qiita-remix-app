@@ -37,6 +37,7 @@ export default function CustomerIndex() {
               <th className="py-2 px-4 text-left font-medium text-gray-600 border-b">
                 ContactName
               </th>
+              <th className="py-2 px-4 text-left font-medium text-gray-600 border-b"></th>
             </tr>
           </thead>
 
@@ -51,6 +52,14 @@ export default function CustomerIndex() {
                 </td>
                 <td className="py-2 px-4 border-b text-gray-500">
                   {customer.ContactName}
+                </td>
+                <td className="py-2 px-4 border-b text-gray-500">
+                  <Link
+                    to={`/customers/${customer.CustomerId}/edit`}
+                    className="text-blue-500 hover:underline"
+                  >
+                    編集
+                  </Link>
                 </td>
               </tr>
             ))}

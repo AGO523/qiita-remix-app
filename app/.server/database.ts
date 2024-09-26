@@ -22,6 +22,24 @@ export async function getCustomers(
   return response.results as Customer[];
 }
 
+export async function getCustomerById(
+  context: AppLoadContext,
+  customerId: number
+): Promise<Customer | null> {
+  const env = context.cloudflare.env;
+  const db = env.DB;
+  const response = await db
+    .prepare("SELECT * FROM customers WHERE CustomerId = ?")
+    .bind(customerId)
+    .first();
+
+  if (response === null) {
+    return null;
+  }
+
+  return response as Customer;
+}
+
 export async function createCustomer(
   context: AppLoadContext,
   formData: FormData
@@ -45,6 +63,36 @@ export async function createCustomer(
 
   if (!response.success) {
     throw new Error("Failed to create customer");
+  }
+
+  return response.results;
+}
+
+export async function updateCustomer(
+  context: AppLoadContext,
+  customerId: number,
+  formData: FormData
+) {
+  const env = context.cloudflare.env;
+  const db = env.DB;
+
+  const results = CustomerSchema.safeParse({
+    CompanyName: formData.get("CompanyName"),
+    ContactName: formData.get("ContactName"),
+  });
+  if (!results.success) {
+    throw new Error("Invalid form data");
+  }
+
+  const response = await db
+    .prepare(
+      `UPDATE customers SET CompanyName = ?, ContactName = ? WHERE CustomerId = ?`
+    )
+    .bind(results.data.CompanyName, results.data.ContactName, customerId)
+    .run();
+
+  if (!response.success) {
+    throw new Error("Failed to update customer");
   }
 
   return response.results;
