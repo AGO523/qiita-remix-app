@@ -60,6 +60,12 @@ export default function CustomerIndex() {
                   >
                     編集
                   </Link>
+                  <Link
+                    to={`/customers/${customer.CustomerId}/delete`}
+                    className="ml-4 text-red-500 hover:underline"
+                  >
+                    削除
+                  </Link>
                 </td>
               </tr>
             ))}

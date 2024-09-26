@@ -97,3 +97,22 @@ export async function updateCustomer(
 
   return response.results;
 }
+
+export async function deleteCustomer(
+  context: AppLoadContext,
+  customerId: number
+) {
+  const env = context.cloudflare.env;
+  const db = env.DB;
+
+  const response = await db
+    .prepare(`DELETE FROM customers WHERE CustomerId = ?`)
+    .bind(customerId)
+    .run();
+
+  if (!response.success) {
+    throw new Error("Failed to delete customer");
+  }
+
+  return response.results;
+}
